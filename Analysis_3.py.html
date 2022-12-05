@@ -1,0 +1,112 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+get_ipython().system('pip install --upgrade pandas')
+
+
+# In[2]:
+
+
+#import useful libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+# In[3]:
+
+
+#load in the dataset
+df_show = pd.read_csv('clean_appointments.csv')
+df_show.head()
+
+
+# In[4]:
+
+
+df_show.info()
+
+
+# ## Fix data type issue
+# > The dataset has previously been cleaned, but it's data type formatting was lost in converting from a dataframe to CSV, so I'll perform data type transformation on the new dataset
+
+# In[5]:
+
+
+df_show['patientid'] = df_show['patientid'].astype('str')
+type(df_show['patientid'][0])
+
+
+# In[6]:
+
+
+df_show['appointmentid'] = df_show['appointmentid'].astype('str')
+type(df_show['appointmentid'][0])
+
+
+# ##### fix problem with scheduled day and appointment day
+
+# In[7]:
+
+
+#convert feature to datetime for easy manipulation of data
+df_show.scheduledday = pd.to_datetime(df_show.scheduledday)
+
+
+# In[8]:
+
+
+df_show.appointmentday = pd.to_datetime(df_show.appointmentday)
+
+
+# ##### convert categorical variables from other types to category
+
+# In[9]:
+
+
+cat_var = ['gender','scholarship','hipertension',
+          'diabetes', 'alcoholism', 'handcap',
+          'sms_received', 'show']
+
+
+# In[10]:
+
+
+for val in cat_var:
+    df_show[val] = df_show[val].astype('category')
+
+
+# ### Analysis 3: What percentage of persons showed up during the period that the research lasted?
+
+# In[11]:
+
+
+df_show.shape
+
+
+# In[12]:
+
+
+total = df_show['show'].value_counts().values.sum()
+
+
+# In[14]:
+
+
+def fmt(x):
+    return '{:.2f}%\n{:.0f}'.format(x, total*x/100)
+
+plt.pie(df_show['show'].value_counts().values, labels=df_show['show'].value_counts().index, autopct=fmt);
+plt.title('Plot of the percentage of Patients that attended vs those Absent')
+
+
+# ###### From the above, we see that:
+# 
+# > 79.81% of persons showed up during the entire phase of the research.
+# 
+# > 20.19% of persons didn't keep their appointment with the medical personnel.
