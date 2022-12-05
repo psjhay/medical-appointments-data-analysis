@@ -1,0 +1,126 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+get_ipython().system('pip install --upgrade pandas')
+
+
+# In[2]:
+
+
+#import useful libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+# In[3]:
+
+
+#load in the dataset
+df_show = pd.read_csv('clean_appointments.csv')
+df_show.head()
+
+
+# In[4]:
+
+
+df_show.info()
+
+
+# ## Fix data type issue
+# > The dataset has previously been cleaned, but it's data type formatting was lost in converting from a dataframe to CSV, so I'll perform data type transformation on the new dataset
+
+# In[5]:
+
+
+df_show['patientid'] = df_show['patientid'].astype('str')
+type(df_show['patientid'][0])
+
+
+# In[6]:
+
+
+df_show['appointmentid'] = df_show['appointmentid'].astype('str')
+type(df_show['appointmentid'][0])
+
+
+# ##### fix problem with scheduled day and appointment day
+
+# In[7]:
+
+
+#convert feature to datetime for easy manipulation of data
+df_show.scheduledday = pd.to_datetime(df_show.scheduledday)
+
+
+# In[8]:
+
+
+df_show.appointmentday = pd.to_datetime(df_show.appointmentday)
+
+
+# ##### convert categorical variables from other types to category
+
+# In[9]:
+
+
+cat_var = ['gender','scholarship','hipertension',
+          'diabetes', 'alcoholism', 'handcap',
+          'sms_received', 'show']
+
+
+# In[10]:
+
+
+for val in cat_var:
+    df_show[val] = df_show[val].astype('category')
+
+
+# ### Analysis 2: How does alcohol affect showing up?
+
+# In[11]:
+
+
+df_show.alcoholism.value_counts()
+
+
+# In[12]:
+
+
+sns.countplot(x='alcoholism', hue='show', data = df_show);
+plt.title('Graphical Representation of Alcoholism against Patients Show-up');
+
+
+# > The plot above shows that only a small fraction of the patients in this survey are alcoholics.
+# To give a correct insight into the data, let's find out the **percentage of non-alcoholic patients who keep their appointment** as well as the **percentage of alcoholic patients who keep their appointment**.
+
+# In[13]:
+
+
+df_show.groupby('alcoholism')['show'].value_counts()
+
+
+# > *ratio of non alcoholics that show up is* **85524/107166**
+
+# In[14]:
+
+
+85524/107166
+
+
+# >*ratio of alcoholics that show up is* **2683/3360**
+
+# In[15]:
+
+
+2683/3360
+
+
+# ###### From the above we find that:
+# 
+# > about **79%** of persons are likely to keep their appointment irrespective of  their being alcoholics or non-alcoholics. Thus, alcoholism has a negligible impact on a patient's keeping an appointment.
