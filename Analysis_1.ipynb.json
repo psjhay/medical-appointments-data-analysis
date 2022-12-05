@@ -1,0 +1,579 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Requirement already up-to-date: pandas in /opt/conda/lib/python3.6/site-packages (1.1.5)\n",
+      "Requirement already satisfied, skipping upgrade: python-dateutil>=2.7.3 in /opt/conda/lib/python3.6/site-packages (from pandas) (2.8.2)\n",
+      "Requirement already satisfied, skipping upgrade: numpy>=1.15.4 in /opt/conda/lib/python3.6/site-packages (from pandas) (1.19.5)\n",
+      "Requirement already satisfied, skipping upgrade: pytz>=2017.2 in /opt/conda/lib/python3.6/site-packages (from pandas) (2017.3)\n",
+      "Requirement already satisfied, skipping upgrade: six>=1.5 in /opt/conda/lib/python3.6/site-packages (from python-dateutil>=2.7.3->pandas) (1.11.0)\n"
+     ]
+    }
+   ],
+   "source": [
+    "!pip install --upgrade pandas"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#import useful libraries\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import matplotlib.pyplot as plt\n",
+    "import seaborn as sns\n",
+    "%matplotlib inline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>patientid</th>\n",
+       "      <th>appointmentid</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>scheduledday</th>\n",
+       "      <th>appointmentday</th>\n",
+       "      <th>age</th>\n",
+       "      <th>neighbourhood</th>\n",
+       "      <th>scholarship</th>\n",
+       "      <th>hipertension</th>\n",
+       "      <th>diabetes</th>\n",
+       "      <th>alcoholism</th>\n",
+       "      <th>handcap</th>\n",
+       "      <th>sms_received</th>\n",
+       "      <th>show</th>\n",
+       "      <th>age_group</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2.987250e+13</td>\n",
+       "      <td>5642903</td>\n",
+       "      <td>F</td>\n",
+       "      <td>2016-04-29 18:38:08</td>\n",
+       "      <td>2016-04-29 00:00:00</td>\n",
+       "      <td>62</td>\n",
+       "      <td>JARDIM DA PENHA</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>old</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>5.589978e+14</td>\n",
+       "      <td>5642503</td>\n",
+       "      <td>M</td>\n",
+       "      <td>2016-04-29 16:08:27</td>\n",
+       "      <td>2016-04-29 00:00:00</td>\n",
+       "      <td>56</td>\n",
+       "      <td>JARDIM DA PENHA</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>adult</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>4.262962e+12</td>\n",
+       "      <td>5642549</td>\n",
+       "      <td>F</td>\n",
+       "      <td>2016-04-29 16:19:04</td>\n",
+       "      <td>2016-04-29 00:00:00</td>\n",
+       "      <td>62</td>\n",
+       "      <td>MATA DA PRAIA</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>old</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>8.679512e+11</td>\n",
+       "      <td>5642828</td>\n",
+       "      <td>F</td>\n",
+       "      <td>2016-04-29 17:29:31</td>\n",
+       "      <td>2016-04-29 00:00:00</td>\n",
+       "      <td>8</td>\n",
+       "      <td>PONTAL DE CAMBURI</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>child</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>8.841186e+12</td>\n",
+       "      <td>5642494</td>\n",
+       "      <td>F</td>\n",
+       "      <td>2016-04-29 16:07:23</td>\n",
+       "      <td>2016-04-29 00:00:00</td>\n",
+       "      <td>56</td>\n",
+       "      <td>JARDIM DA PENHA</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>adult</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      patientid  appointmentid gender         scheduledday  \\\n",
+       "0  2.987250e+13        5642903      F  2016-04-29 18:38:08   \n",
+       "1  5.589978e+14        5642503      M  2016-04-29 16:08:27   \n",
+       "2  4.262962e+12        5642549      F  2016-04-29 16:19:04   \n",
+       "3  8.679512e+11        5642828      F  2016-04-29 17:29:31   \n",
+       "4  8.841186e+12        5642494      F  2016-04-29 16:07:23   \n",
+       "\n",
+       "        appointmentday  age      neighbourhood  scholarship  hipertension  \\\n",
+       "0  2016-04-29 00:00:00   62    JARDIM DA PENHA            0             1   \n",
+       "1  2016-04-29 00:00:00   56    JARDIM DA PENHA            0             0   \n",
+       "2  2016-04-29 00:00:00   62      MATA DA PRAIA            0             0   \n",
+       "3  2016-04-29 00:00:00    8  PONTAL DE CAMBURI            0             0   \n",
+       "4  2016-04-29 00:00:00   56    JARDIM DA PENHA            0             1   \n",
+       "\n",
+       "   diabetes  alcoholism  handcap  sms_received show age_group  \n",
+       "0         0           0        0             0  Yes       old  \n",
+       "1         0           0        0             0  Yes     adult  \n",
+       "2         0           0        0             0  Yes       old  \n",
+       "3         0           0        0             0  Yes     child  \n",
+       "4         1           0        0             0  Yes     adult  "
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#load in the dataset\n",
+    "df_show = pd.read_csv('clean_appointments.csv')\n",
+    "df_show.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 110526 entries, 0 to 110525\n",
+      "Data columns (total 15 columns):\n",
+      " #   Column          Non-Null Count   Dtype  \n",
+      "---  ------          --------------   -----  \n",
+      " 0   patientid       110526 non-null  float64\n",
+      " 1   appointmentid   110526 non-null  int64  \n",
+      " 2   gender          110526 non-null  object \n",
+      " 3   scheduledday    110526 non-null  object \n",
+      " 4   appointmentday  110526 non-null  object \n",
+      " 5   age             110526 non-null  int64  \n",
+      " 6   neighbourhood   110526 non-null  object \n",
+      " 7   scholarship     110526 non-null  int64  \n",
+      " 8   hipertension    110526 non-null  int64  \n",
+      " 9   diabetes        110526 non-null  int64  \n",
+      " 10  alcoholism      110526 non-null  int64  \n",
+      " 11  handcap         110526 non-null  int64  \n",
+      " 12  sms_received    110526 non-null  int64  \n",
+      " 13  show            110526 non-null  object \n",
+      " 14  age_group       110526 non-null  object \n",
+      "dtypes: float64(1), int64(8), object(6)\n",
+      "memory usage: 12.6+ MB\n"
+     ]
+    }
+   ],
+   "source": [
+    "df_show.info()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Fix data type issue\n",
+    "> The dataset has previously been cleaned, but it's data type formatting was lost in converting from a dataframe to CSV, so I'll perform data type transformation on the new dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "str"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_show['patientid'] = df_show['patientid'].astype('str')\n",
+    "type(df_show['patientid'][0])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "str"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_show['appointmentid'] = df_show['appointmentid'].astype('str')\n",
+    "type(df_show['appointmentid'][0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### fix problem with scheduled day and appointment day"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#convert feature to datetime for easy manipulation of data\n",
+    "df_show.scheduledday = pd.to_datetime(df_show.scheduledday)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_show.appointmentday = pd.to_datetime(df_show.appointmentday)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### convert categorical variables from other types to category"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cat_var = ['gender','scholarship','hipertension',\n",
+    "          'diabetes', 'alcoholism', 'handcap',\n",
+    "          'sms_received', 'show']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for val in cat_var:\n",
+    "    df_show[val] = df_show[val].astype('category')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    ">**Create a mask for the values in the show feature of the df_show dataframe.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "show = df_show.show == 'Yes'\n",
+    "no_show= df_show.show == 'No'"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Analysis 1: How does being on a scholarship affect a patients showing up?"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### Graphically"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<matplotlib.axes._subplots.AxesSubplot at 0x7f6027e1ee48>"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<matplotlib.figure.Figure at 0x7f6027e1e828>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "sns.countplot(x='scholarship', hue='show', data= df_show)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### Statistically "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0    99665\n",
+       "1    10861\n",
+       "Name: scholarship, dtype: int64"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_show.scholarship.value_counts()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "###### The number of persons not on a scholarship is way smaller than that of those on a scholarship"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "scholarship  show\n",
+       "0            Yes     79924\n",
+       "             No      19741\n",
+       "1            Yes      8283\n",
+       "             No       2578\n",
+       "Name: show, dtype: int64"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_show.groupby('scholarship')['show'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    ">*ratio of people on scholarship that showed up* **8283/10861**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.7626369579228433"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "8283/10861"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    ">*ratio of people not on scholarship that showed up* **79924/99665**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.8019264536196258"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "79924/99665"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "###### From the above\n",
+    "> It can be seen that the percentage of people not on a scholarship and still showed up for their appointment is slightly higher than their counterparts"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Brief conclusion\n",
+    "\n",
+    "######  From tte graphical as well as the statistical analysis, we see that \n",
+    "\n",
+    "> About 20,000 persons not on a scholarship didn't show up\n",
+    "\n",
+    "> for those on a scholarship, the number of persons not showing up is about 2,500\n",
+    "\n",
+    "> Also, we see that scholarship may not be a correct determinant of a patient showing up as there exist a close relationship between the percentages of those that show up and those who didn't show up based on their scholarship positions."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
