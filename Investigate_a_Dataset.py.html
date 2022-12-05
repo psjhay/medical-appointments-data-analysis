@@ -1,0 +1,634 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# 
+# # Project: Investigate a Dataset - Medical appointments dataset
+# 
+# ## Table of Contents
+# <ul>
+# <li><a href="#intro">Introduction</a></li>
+# <li><a href="#wrangling">Data Wrangling</a></li>
+# <li><a href="#eda">Exploratory Data Analysis</a></li>
+# <li><a href="#conclusions">Conclusions</a></li>
+# </ul>
+
+# <a id='intro'></a>
+# ## Introduction
+# 
+# ### Dataset Description 
+# 
+# **The Medical appointments dataset** shows:
+# >the data gathered from patients within a particular region. 
+# 
+# >The dataset helps to study relationships between certain factors that may hinder or enhance the likelihood of patients (within that geographical location and under the same conditions) in keeping an appointment with a medical personnel.
+# 
+# The dataset has 110527 entries with 14 variables or features. It has one dependent variable: the **'no-show'** feature. An analysis on this dataset would be to pick some independent variables and find a correlation between them and the dependent variable.
+# 
+# **Column names:**
+# >**Patient Id:** This feature is peculiar to each individual patient.
+# 
+# >**appointment Id:** This is unique to each appointment.
+# 
+# >**Gender:** Is the patient a male or a female?
+# 
+# >**Scheduled Day:** This represents the day the patient called or registered the appointment; It is usually before the main appointment day.
+# 
+# >**Appointment Day:** This is the day of the actual appointment, when they have to visit the doctor.
+# 
+# >**Age:** The patient's age.
+# 
+# >**Scholarship:** Is the patient on the Bolsa scholarship program? 1 signifies 'yes', 0 signifies a 'no'.
+# 
+# >**Neighborhood:** Where was the appointment scheduled to be?
+# 
+# >**Alcoholism:** Is the patient an alcoholic? 1='Yes', 0='No'.
+# 
+# >**Hipertension:** Does the patient suffer from hypertension? 0='No', 1='Yes'.
+# 
+# >**Diabetes:** Does the patient suffer from diabetes? 0='No', 1='Yes'.
+# 
+# >**Handcap:** Is the patient handicapped? 0='No', 1='Yes'.
+# 
+# >**SMS_received:** Did the patient receive any message? 0='No', 1='Yes'.
+# 
+# >**No-show:** Didn't the patient show up? 'Yes'= patient did not show up, 'No'= patient showed up.
+# 
+# ### Question(s) for Analysis
+# 
+# *1. Does being on the bolsa scholarship heighten the possibility of a patient keeping their appointment?*
+# 
+# *2. What percentage of person's kept their appointment during the whole duration of the research?*
+
+# In[70]:
+
+
+get_ipython().system('pip install --upgrade pandas')
+
+
+# In[71]:
+
+
+#import useful libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+# <a id='wrangling'></a>
+# ## Data Wrangling
+# 
+# ### General Properties
+
+# In[2]:
+
+
+#load in the dataset
+df_show = pd.read_csv('noshowappointments-kagglev2-may-2016.csv')
+df_show.head()
+
+
+# In[3]:
+
+
+df_show.shape
+
+
+# In[4]:
+
+
+df_show.info()
+
+
+# In[5]:
+
+
+df_show.describe()
+
+
+# In[6]:
+
+
+df_show.columns
+
+
+# In[7]:
+
+
+df_show['PatientId'] = df_show['PatientId'].astype('str')
+type(df_show['PatientId'][0])
+
+
+# In[8]:
+
+
+df_show['AppointmentID'] = df_show['AppointmentID'].astype('str')
+type(df_show['AppointmentID'][0])
+
+
+# #### Problems
+# 
+# **From the above, we find that**
+# 
+# > The naming format of the column names will prevent us from performing series operations if we want to.
+# 
+# > The Age feature has a negative value, which is not supposed to be.
+# 
+# > scheduled day and appointment day are of the string datatype. This will prevent us from working with the dates if a need arises.
+# 
+# > The no-show feature can be quite confusing if one doesn't take their time.
+
+# ### Data Cleaning 
+
+# ##### fix column naming format
+
+# In[9]:
+
+
+#rename columns to lower letters, also replace 
+#'-' with '_'
+df_show.rename(columns= lambda x: x.strip().lower().replace("-","_"), inplace=True)
+
+
+# In[10]:
+
+
+df_show.columns
+
+
+# ##### fix problem with scheduled day and appointment day
+
+# In[11]:
+
+
+#convert feature to datetime for easy manipulation of data
+df_show.scheduledday = pd.to_datetime(df_show.scheduledday)
+
+
+# In[12]:
+
+
+df_show.appointmentday = pd.to_datetime(df_show.appointmentday)
+
+
+# In[13]:
+
+
+df_show.dtypes
+
+
+# ##### Drop data point with a negative value for age
+
+# In[14]:
+
+
+age_negative = df_show.query('age == -1')
+age_negative
+
+
+# In[15]:
+
+
+df_show.drop(age_negative.index, axis=0, inplace=True)
+
+
+# In[16]:
+
+
+df_show.query('age ==-1')
+
+
+# ##### create a new column called show
+# >*show will be the opposite of no_show. This is to prevent the problem of wrong meaning. After the **show** column is created, the **no_show** column would be dropped.*
+
+# In[17]:
+
+
+df_show.no_show.unique()
+
+
+# In[18]:
+
+
+#create the show feature
+#map using direct logic
+df_show['show'] = df_show.no_show.map({'Yes':'No','No':'Yes'})
+
+
+# In[19]:
+
+
+df_show.show.value_counts()
+
+
+# In[20]:
+
+
+df_show.no_show.value_counts()
+
+
+# In[21]:
+
+
+#drop the no_show feature
+df_show.drop('no_show', axis=1, inplace=True)
+
+
+# In[22]:
+
+
+df_show.info()
+
+
+# In[66]:
+
+
+cat_var = ['gender','scholarship','hipertension',
+          'diabetes', 'alcoholism', 'handcap',
+          'sms_received', 'show']
+
+
+# In[67]:
+
+
+for val in cat_var:
+    df_show[val] = df_show[val].astype('category')
+
+
+# In[72]:
+
+
+df_show.to_csv('clean_appointments.csv', index=False)
+
+
+# <a id='eda'></a>
+# ## Exploratory Data Analysis
+
+# In[24]:
+
+
+df_show.hist(figsize=(12,12));
+
+
+# In[25]:
+
+
+#create a mask for the values in the show feature of the 
+#df_show dataframe
+show = df_show.show == 'Yes'
+no_show= df_show.show == 'No'
+
+
+# In[26]:
+
+
+# a function that masks a part of a data
+#maps 1 to Yes, and 0 to No; after which it plots 
+# a histogram of the data
+def plot_varhist(x):
+    df_show[x][show].map({1:'Yes',0:'No'}).hist(label='show', figsize=(8,8))
+    df_show[x][no_show].map({1:'Yes',0:'No'}).hist(label='no_show')
+    plt.xlabel(x, fontsize=13)
+    plt.title('Effect of ' + x + ' on a patient\'s showing up', fontsize = 20)
+    plt.ylabel('Number of patients', fontsize = 13)
+    plt.legend()
+
+
+# In[27]:
+
+
+# this function receives a column name as an argument
+# gets the value_counts of that column
+# then plots a bar chart of the data
+def plot_val_count(x):
+    var_count = df_show[x].value_counts()
+    plt.bar(var_count.index[0], var_count[0], label= 'No')
+    plt.bar(var_count.index[1], var_count[1], label= 'Yes')
+    plt.title('Distribution of patient\'s by '+ x, fontsize=20)
+    plt.xlabel(x, fontsize=13)
+    plt.ylabel('Number of patient\'s', fontsize=13)
+    plt.legend()
+
+
+# In[28]:
+
+
+# perform the groupby value_counts function
+# it receives two arguments
+def val_count_bygroup(x,y):
+    group = df_show.groupby(x)[y].value_counts()
+    return group
+
+
+# ### Research Question 1: How does being on a scholarship affect a patients showing up?
+
+# In[29]:
+
+
+df_show.scholarship.value_counts()
+
+
+# In[30]:
+
+
+plot_val_count('scholarship')
+
+
+# ###### The number of persons not on a scholarship is way smaller than that of those on a scholarship
+
+# In[31]:
+
+
+val_count_bygroup('scholarship','show')
+
+
+# >*ratio of people on scholarship that showed up* **8283/10861**
+
+# In[32]:
+
+
+8283/10861
+
+
+# >*ratio of people not on scholarship that showed up* **79924/99665**
+
+# In[33]:
+
+
+79924/99665
+
+
+# ###### From the above
+# > It can be seen that a higher percentage of people not on a scholarship showed up for their appointment.
+
+# In[34]:
+
+
+plot_varhist('scholarship')
+
+
+# ######  The graph above represents the value of those on or not on a scholarship; masked with their likelihood of keeping their appointment.
+# 
+# > About 20,000 persons not on a scholarship didn't show up
+# 
+# > for those on a scholarship, the number of persons not showing up is about 2,500
+
+# ### Research Question 2: How does alcohol affect showing up?
+
+# In[35]:
+
+
+df_show.alcoholism.value_counts()
+
+
+# In[36]:
+
+
+plot_val_count('alcoholism')
+
+
+# ###### Only a small fraction of persons are alcoholics from this dataset
+
+# In[37]:
+
+
+val_count_bygroup('alcoholism','show')
+
+
+# > *ratio of non alcoholics that show up is* **85524/107166**
+
+# In[38]:
+
+
+85524/107166
+
+
+# >*ratio of alcoholics that show up is* **2683/3360**
+
+# In[39]:
+
+
+2683/3360
+
+
+# ###### From the above we find that:
+# 
+# > about 79% of persons are likely to keep their appointment irrespective of whether they are alcoholics or not.
+
+# In[40]:
+
+
+plot_varhist('alcoholism')
+
+
+# ###### The graph above shows a mask of patients that show up and didn't show up for their appointment based on whether they are alcoholics or not.
+# 
+# > It was found that in both cases, only about 79% of persons show up for the appointment.
+
+# In[41]:
+
+
+df_show.plot(x='age', y='alcoholism', kind='scatter')
+
+
+# ###### The graph above tends to discover a relationship between age and alcoholism.
+# 
+# > No particular correlation is observed, but we can from the graph above say that once a person reaches **80 years,** the tendency for them to be an alcoholic reduces.
+
+# ### What percentage of persons showed up during the whole period of the research?
+
+# In[42]:
+
+
+df_show.shape
+
+
+# In[43]:
+
+
+show_val = df_show.show.value_counts()
+show_val
+
+
+# In[44]:
+
+
+# percentage of person's that showed up and that didn't show up
+# during the phase of this research
+show_percent = 88207/110526
+noshow_percent = 22319/110526
+
+
+# In[45]:
+
+
+#a pie chart of the entire distribution
+plt.pie(show_val, labels=['Showed up', 'Absent'])
+plt.legend;
+
+
+# In[46]:
+
+
+show_percent
+
+
+# In[47]:
+
+
+noshow_percent
+
+
+# ###### From the above, we see that:
+# 
+# > 79.8066% of persons showed up during the entire phase of the research.
+# 
+# > 20.1934% of persons didn't keep their appointment with the medical personnel.
+
+# ### Relationship between receiving an SMS and showing up
+
+# In[48]:
+
+
+df_show.sms_received.value_counts()
+
+
+# In[49]:
+
+
+plot_val_count('sms_received')
+
+
+# ###### The graph above shows us that the number of persons that didn't receive an SMS is about twice the number of those that received an SMS
+
+# In[50]:
+
+
+val_count_bygroup('sms_received','show')
+
+
+# In[51]:
+
+
+# No SMS, but showed up
+62509/75044
+
+
+# In[52]:
+
+
+# received SMS and showed up
+25689/35482
+
+
+# In[53]:
+
+
+plot_varhist('sms_received')
+
+
+# ###### From the above, it can be seen that
+# > The Percentage of persons who show up without having received an SMS is slightly higher than that of those that showed up after receiving an sms
+
+# ### Effect of age on a patients showing up 
+
+# In[54]:
+
+
+# create bins and labels for the age column
+age_bin = [-10,20,40,60,80,100,120]
+age_label = ['child','young adult','adult','old','elder','grand elder']
+
+
+# In[55]:
+
+
+# create new column to group age into categories
+df_show['age_group'] = pd.cut(df_show.age, bins=age_bin, labels=age_label)
+df_show.head()
+
+
+# In[56]:
+
+
+# save modifications to file as a new CSV file
+#df_show.to_csv('no_show_appointments_edited', index=False)
+
+
+# In[57]:
+
+
+age_effect = df_show.age_group.value_counts()
+age_effect
+
+
+# >*The larger part of the populace under survey are people within the ages from **0-60** years i.e., children, young adults or adults*
+
+# In[58]:
+
+
+val_count_bygroup('age_group', 'show')
+
+
+# In[59]:
+
+
+val_count_bygroup(['scholarship','age_group'],'show')
+
+
+# > No one within the ages of 100 and 120 os on the Bolsa scholarship
+
+# In[60]:
+
+
+def plot_varhist1(x):
+    df_show[x][show].hist(label='show', figsize=(8,8))
+    df_show[x][no_show].hist(label='no_show')
+    plt.xlabel(x, fontsize=13)
+    plt.title('Effect of ' + x + ' on a patient\'s showing up', fontsize = 20)
+    plt.ylabel('Number of patients', fontsize = 13)
+    plt.legend()
+
+
+# In[61]:
+
+
+plot_varhist1('age_group')
+
+
+# ###### From the above, we see that:
+# > The child age group occupies the bigger part of the pooulace while the grand elder group is the least in the population.
+# 
+# > Of the 31,848 children that make up the population, only **24,752** of them showed up.
+# 
+# > There are only 7 persons within the ages of 100 and 120; 4 kept their appointment, the other three didn't.
+
+# <a id='conclusions'></a>
+# ## Conclusions
+
+# ###### The research sought to find relationships between certain variables that work together to determine if a patient will show up for an appointment with their doctor or not.
+# 
+# *It was found that:*
+# > The number of persons on a scholarship is very small compared to those not on a scholarship.
+# 
+# > The percentage of those not on a scholarship and yet showed up is more than that of those who showed up while on a scholarship.
+# 
+# > No one within the ages of 100 and 120 is on a scholarship.
+# 
+# > Whether or not a patient is alcoholic or not doesn't really affect the chances of their showing up as **both alcoholics and non-alcoholics turned up about 79% of the time.**
+# 
+# > About **80%** of patients kept their appointment with the medical personnel.
+# 
+# > Receiving an SMS does not necessarily materialize in showing up as the percentage of persons who showed up without receiving an SMS is more than that of those who showed up after receiving an SMS.
+# 
+# > The larger part of the populace under survey are people within the ages of 0 and 60.
+# 
+# > Of the whole population under analysis, only 7 persons are within the ages of 100 and 120.
+
+# #### Limitations 
+# 
+# > For the fact that this project is restricted to just data analysis, one cannot be able to classify a new unlabeled data point as to whether the patient will show up or not. Doing this requires some machine learning which is beyond the scope of this project.
+# 
+# > Also, if data on the residential address of patients and the venue of their appointments were given, one might have been able to determine a patients keeping their appointment based on proximity to the appointment center.
+
+# ###### The end.
