@@ -1,0 +1,146 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+get_ipython().system('pip install --upgrade pandas')
+
+
+# In[2]:
+
+
+#import useful libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+# In[3]:
+
+
+#load in the dataset
+df_show = pd.read_csv('clean_appointments.csv')
+df_show.head()
+
+
+# In[4]:
+
+
+df_show.info()
+
+
+# ## Fix data type issue
+# > The dataset has previously been cleaned, but it's data type formatting was lost in converting from a dataframe to CSV, so I'll perform data type transformation on the new dataset
+
+# In[5]:
+
+
+df_show['patientid'] = df_show['patientid'].astype('str')
+type(df_show['patientid'][0])
+
+
+# In[6]:
+
+
+df_show['appointmentid'] = df_show['appointmentid'].astype('str')
+type(df_show['appointmentid'][0])
+
+
+# ##### fix problem with scheduled day and appointment day
+
+# In[7]:
+
+
+#convert feature to datetime for easy manipulation of data
+df_show.scheduledday = pd.to_datetime(df_show.scheduledday)
+
+
+# In[8]:
+
+
+df_show.appointmentday = pd.to_datetime(df_show.appointmentday)
+
+
+# ##### convert categorical variables from other types to category
+
+# In[9]:
+
+
+cat_var = ['gender','scholarship','hipertension',
+          'diabetes', 'alcoholism', 'handcap',
+          'sms_received', 'show']
+
+
+# In[10]:
+
+
+for val in cat_var:
+    df_show[val] = df_show[val].astype('category')
+
+
+# >**Create a mask for the values in the show feature of the df_show dataframe.**
+
+# In[11]:
+
+
+show = df_show.show == 'Yes'
+no_show= df_show.show == 'No'
+
+
+# ### Analysis 1: How does being on a scholarship affect a patients showing up?
+
+# ##### Graphically
+
+# In[12]:
+
+
+sns.countplot(x='scholarship', hue='show', data= df_show)
+
+
+# ##### Statistically 
+
+# In[13]:
+
+
+df_show.scholarship.value_counts()
+
+
+# ###### The number of persons not on a scholarship is way smaller than that of those on a scholarship
+
+# In[14]:
+
+
+df_show.groupby('scholarship')['show'].value_counts()
+
+
+# >*ratio of people on scholarship that showed up* **8283/10861**
+
+# In[15]:
+
+
+8283/10861
+
+
+# >*ratio of people not on scholarship that showed up* **79924/99665**
+
+# In[16]:
+
+
+79924/99665
+
+
+# ###### From the above
+# > It can be seen that the percentage of people not on a scholarship and still showed up for their appointment is slightly higher than their counterparts
+
+# #### Brief conclusion
+# 
+# ######  From tte graphical as well as the statistical analysis, we see that 
+# 
+# > About 20,000 persons not on a scholarship didn't show up
+# 
+# > for those on a scholarship, the number of persons not showing up is about 2,500
+# 
+# > Also, we see that scholarship may not be a correct determinant of a patient showing up as there exist a close relationship between the percentages of those that show up and those who didn't show up based on their scholarship positions.
