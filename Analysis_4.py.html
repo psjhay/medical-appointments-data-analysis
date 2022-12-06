@@ -1,0 +1,105 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+get_ipython().system('pip install --upgrade pandas')
+
+
+# In[2]:
+
+
+#import useful libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+get_ipython().run_line_magic('matplotlib', 'inline')
+
+
+# In[3]:
+
+
+#load in the dataset
+df_show = pd.read_csv('clean_appointments.csv')
+df_show.head()
+
+
+# In[4]:
+
+
+df_show.info()
+
+
+# ## Fix data type issue
+# > The dataset has previously been cleaned, but it's data type formatting was lost in converting from a dataframe to CSV, so I'll perform data type transformation on the new dataset
+
+# In[5]:
+
+
+df_show['patientid'] = df_show['patientid'].astype('str')
+type(df_show['patientid'][0])
+
+
+# In[6]:
+
+
+df_show['appointmentid'] = df_show['appointmentid'].astype('str')
+type(df_show['appointmentid'][0])
+
+
+# ##### fix problem with scheduled day and appointment day
+
+# In[7]:
+
+
+#convert feature to datetime for easy manipulation of data
+df_show.scheduledday = pd.to_datetime(df_show.scheduledday)
+
+
+# In[8]:
+
+
+df_show.appointmentday = pd.to_datetime(df_show.appointmentday)
+
+
+# ##### convert categorical variables from other types to category
+
+# In[9]:
+
+
+cat_var = ['gender','scholarship','hipertension',
+          'diabetes', 'alcoholism', 'handcap',
+          'sms_received', 'show']
+
+
+# In[10]:
+
+
+for val in cat_var:
+    df_show[val] = df_show[val].astype('category')
+
+
+# In[11]:
+
+
+df_show.dtypes
+
+
+# ### Analysis 4: How does Age affect Alcoholism?
+
+# In[12]:
+
+
+sns.boxplot(x='alcoholism', y='age', data=df_show);
+plt.title('Graphical Relationship between Age and Alcoholism');
+
+
+# ###### From the graph above, it is seen that:
+# 
+# > The middle half of non alcoholics is spread between ages 20 and 60 with the median just before 40; While alcoholics have an IQR between 40 and 60, and a median age just before 60.
+# 
+# > Furthermore, it can be seen that after the age of 80, the probability of being an alcoholic decreases drastically.
+# 
+# > Safe for outliers, it can be determined from the visual above that between the ages 0-18 years, one is less likely to be an alcohol addict.
